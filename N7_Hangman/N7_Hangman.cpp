@@ -40,20 +40,21 @@ void printPlayer(Player* p) {
 	std::cout << "| " << p->id << " | " << p->name << " | " << p->current_guess << " | " << p->history.guesses << " | " << p->history.time << " | " << (p->next != nullptr ? std::to_string(p->next->id) : "Null") << " |\n";
 }
 
-void writeAsHTML(Player p[], const int n) {
+void writeAsHTML(Player* head) {
 	std::ostringstream ss;
 
 	ss << "<table border=\"1\"\n style=\"text-align:center;>\"";
 	ss << "<thead>\n<tr>\n<th>ID</th>\n<th>Name</th>\n<th>Word</th>\n<th>Guesses</th>\n<th>Time</th>\n<th>Next</th>\n</tr>\n</thead>\n<tbody>\n";
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < 5; i++) {
 		ss << "<tr>\n";
-		ss << "<td>" << p[i].id << "</td>\n";
-		ss << "<td>" << p[i].name << "</td>\n";
-		ss << "<td>" << p[i].current_guess << "</td>\n";
-		ss << "<td>" << p[i].history.guesses << "</td>\n";
-		ss << "<td>" << p[i].history.time << " s</td>\n";
-		ss << "<td>" << (p[i].next != nullptr ? std::to_string(p[i].next->id) : "Null") << "</td>\n";
+		ss << "<td>" << head->id << "</td>\n";
+		ss << "<td>" << head->name << "</td>\n";
+		ss << "<td>" << head->current_guess << "</td>\n";
+		ss << "<td>" << head->history.guesses << "</td>\n";
+		ss << "<td>" << head->history.time << " s</td>\n";
+		ss << "<td>" << (head->next != nullptr ? std::to_string(head->next->id) : "Null") << "</td>\n";
 		ss << "</tr>\n";
+		head = head->next;
 	}
 	ss << "</tbody>\n</table>";
 
@@ -73,7 +74,7 @@ void getFrames(std::string frames[]) {
 		std::string line;
 		int id = 0;
 		while (!file.eof()) {
- 			std::getline(file, line);
+			std::getline(file, line);
 			if (line == ";") id++;
 			else {
 				line += "\n";
@@ -85,135 +86,59 @@ void getFrames(std::string frames[]) {
 	file.close();
 }
 
-void unused() {
-	const char* words[]{
-		"time",
-		"year",
-		"people",
-		"way",
-		"day",
-		"man",
-		"thing",
-		"woman",
-		"life",
-		"child",
-		"world",
-		"school",
-		"state",
-		"family",
-		"student",
-		"group",
-		"country",
-		"problem",
-		"hand",
-		"part",
-		"place",
-		"case",
-		"week",
-		"company",
-		"system",
-		"program",
-		"question",
-		"work",
-		"government",
-		"number",
-		"night",
-		"point",
-		"home",
-		"water",
-		"room",
-		"mother",
-		"area",
-		"money",
-		"story",
-		"fact",
-		"month",
-		"lot",
-		"right",
-		"study",
-		"book",
-		"eye",
-		"job",
-		"word",
-		"business",
-		"issue",
-		"side",
-		"kind",
-		"head",
-		"house",
-		"service",
-		"friend",
-		"father",
-		"power",
-		"hour",
-		"game",
-		"line",
-		"end",
-		"member",
-		"law",
-		"car",
-		"city",
-		"community",
-		"name",
-		"president",
-		"team",
-		"minute",
-		"idea",
-		"kid",
-		"body",
-		"information",
-		"back",
-		"parent",
-		"face",
-		"others",
-		"level",
-		"office",
-		"door",
-		"health",
-		"person",
-		"art",
-		"war",
-		"history",
-		"party",
-		"result",
-		"change",
-		"morning",
-		"reason",
-		"research",
-		"girl",
-		"guy",
-		"moment",
-		"air",
-		"teacher",
-		"force",
-		"education"
-	};
+void insertPlayer(Player*& head, Player* p, const int limit) {
+	if (head == nullptr) {
+		head = p;
+		return;
+	}
 
+	Player* curr = head;
+	Player* previous = nullptr;
+	while (curr != nullptr && curr->history.guesses < p->history.guesses) {
+		previous = curr;
+		curr = curr->next;
+	}
 
-	const char* frames[]{
-		"+----------+\n|          |\n|          |\n|          |\n|          |\n|          |\n|   /|\\    |\n+----------+",
-		"+----------+\n|          |\n|          |\n|          |\n|          |\n|    |     |\n|   /|\\    |\n+----------+",
-		"+----------+\n|          |\n|          |\n|          |\n|    |     |\n|    |     |\n|   /|\\    |\n+----------+",
-		"+----------+\n|          |\n|          |\n|    |     |\n|    |     |\n|    |     |\n|   /|\\    |\n+----------+",
-		"+----------+\n|    +     |\n|    |     |\n|    |     |\n|    |     |\n|    |     |\n|   /|\\    |\n+----------+",
-		"+----------+\n|    +--+  |\n|    |     |\n|    |     |\n|    |     |\n|    |     |\n|   /|\\    |\n+----------+",
-		"+----------+\n|    +--+  |\n|    |  |  |\n|    |     |\n|    |     |\n|    |     |\n|   /|\\    |\n+----------+",
-		"+----------+\n|    +--+  |\n|    |  |  |\n|    |  o  |\n|    |     |\n|    |     |\n|   /|\\    |\n+----------+",
-		"+----------+\n|    +--+  |\n|    |  |  |\n|    |  o  |\n|    | -+- |\n|    |     |\n|   /|\\    |\n+----------+",
-		"+----------+\n|    +--+  |\n|    |  |  |\n|    |  o  |\n|    | -+- |\n|    | / \\ |\n|   /|\\    |\n+----------+",
-	};
+	if (previous == nullptr) {
+		p->next = head;
+		head = p;
+	}
+	else {
+		p->next = curr;
+		previous->next = p;
+	}
+
+	int c = 0;
+	curr = head;
+	while (curr != nullptr) {
+		c++;
+		curr = curr->next;
+	}
+	if (c > limit) {
+		curr = head;
+		previous = nullptr;
+		while (curr->next != nullptr) {
+			previous = curr;
+			curr = curr->next;
+		}
+		delete curr;
+		previous->next = nullptr;
+	}
+
+	//std::cout << "Curr ID: " << curr->id << "; Curr V: " << curr->history.guesses << "\nCurr->Next ID: " << p->id << "; Curr->Next V: " << p->history.guesses << '\n';
 }
 
 int main() {
+	// setup
 	const int FRAMES = 10;
 	const int BEST = 5;
-	const int PNUM = 10;
+	const int NUM_OF_PLAYERS = 10;
 
-	int l;
+	int l = 0;
 	do {
 		std::cout << "Word length (bounds 3-11): ";
 		std::cin >> l;
-	} while (l<3 || l > 11);
+	} while (l < 3 || l > 11);
 
 	std::string frames[10];
 	getFrames(frames);
@@ -234,42 +159,47 @@ int main() {
 		}
 	}
 	file.close();
-	
-	
+
+	// gameplay
 	bool win = false;
 	std::string guess = "", guessed_ch = "";
 	char ch;
 	int choice, wrong_guesses, correct_guesses;
 	clock_t start;
 
-	Player p[PNUM];
+	Player* head = nullptr;
+	Player* p;
+	Player* index = head;
 
-	for (int i = 0; i < PNUM; i++) {
+
+	for (int i = 0; i < NUM_OF_PLAYERS; i++) {
 		win = false;
-		p[i].history.guesses = 0;
 		guessed_ch = "";
 		wrong_guesses = 0;
 		correct_guesses = 0;
 		srand(time(nullptr));
 
+		p = new Player;
+
+		//if (i == 0) {
+		//	head = p;
+		//	index = head;
+		//}
+
 		std::cout << "Name: ";
-		std::cin >> p[i].name;
-		p[i].id = i + 1;
+		std::cin >> p->name;
+		p->id = i + 1;
 
-		p[i].current_guess = words[rand() % words.size()];
+		p->current_guess = words[rand() % words.size()];
 		start = clock();
-
-		if (i < PNUM - 1) {
-			p[i].next = &p[i + 1];
-		}
 
 		do {
 			//Testing purposes only
-			std::cout << p[i].current_guess << '\n';
+			std::cout << p->current_guess << '\n';
 
-			for (int j = 0; j < p[i].current_guess.length(); j++) {
-				if (!checkChInWord(guessed_ch, p[i].current_guess[j]))
-					std::cout << p[i].current_guess[j];
+			for (int j = 0; j < p->current_guess.length(); j++) {
+				if (!checkChInWord(guessed_ch, p->current_guess[j]))
+					std::cout << p->current_guess[j];
 				else
 					std::cout << '_';
 			}
@@ -292,9 +222,9 @@ int main() {
 			switch (choice) {
 			case 1:
 				std::cout << "Guess word: ";
-				p[i].history.guesses++;
+				p->history.guesses++;
 				std::cin >> guess;
-				if (guess == p[i].current_guess) {
+				if (guess == p->current_guess) {
 					win = true;
 				}
 				else {
@@ -308,27 +238,26 @@ int main() {
 					std::cout << "Character already guessed!!!";
 					continue;
 				}
-				p[i].history.guesses++;
+				p->history.guesses++;
 				guessed_ch += ch;
-				if (checkChInWord(p[i].current_guess, ch)) {
+				if (checkChInWord(p->current_guess, ch)) {
 					wrong_guesses++;
 					break;
 				}
 				correct_guesses++;
-				if (correct_guesses == p[i].current_guess.length()) {
+				if (correct_guesses == p->current_guess.length()) {
 					win = true;
 				}
-
 				break;
-
 			default:
 				std::cout << "Wrong input\n";
 				break;
 			}
+
 			std::cout << '\n';
 		} while (!win && wrong_guesses < 10);
 
-		p[i].history.time = (int)(clock() - start) / CLOCKS_PER_SEC;
+		p->history.time = (int)(clock() - start) / CLOCKS_PER_SEC;
 
 		if (win) {
 			std::cout << "Congratilations!!! ";
@@ -336,44 +265,30 @@ int main() {
 		else {
 			std::cout << "Too bad. ";
 		}
-		std::cout << "It took you " << p[i].history.guesses << " guesses and " << p[i].history.time << " seconds.\n";
+		std::cout << "It took you " << p->history.guesses << " guesses and " << p->history.time << " seconds.\n";
 
+		insertPlayer(head, p, BEST);
+		
 	}
 
-
-	for (int i = 0; i < PNUM; i++) {
-		for (int j = 1; j < PNUM; j++) {
-			if (p[j].history.guesses < p[j - 1].history.guesses) {
-				std::swap(p[j], p[j - 1]);
-			}
-		}
-	}
-
-    
-
-	for (int i = 0; i < BEST; i++) {
-		if (i < BEST-1) {
-			p[i].next = &p[i + 1];
-		}
-		else {
-			p[i].next = nullptr;
-		}
-	}
-
-	std::cout << "| ID | Name | Word | Guesses | Time | Next |\n";
-	for (int i = 0; i < BEST; i++) {
-		printPlayer(&p[i]);
-	}
-
-	//std::cout << "Checking next element id:\n";
-	//for (int i = 0; i < 3; i++) {
-	//	std::cout << p[i].id << ": " << (p[i].next != nullptr ? p[i].next->id : 69) << "\n";
-	//}
-
-
-
+	// TODO sort players
+	//sortPlayers(p);
 	std::cout << '\n';
-	writeAsHTML(p, BEST);
+
+	//std::cout << "Head: " << head << '\n';
+	for (p = head; p != nullptr; p = p->next) {
+		std::cout << "ID: " << p->id << " ; Name: " << p->name << " ;Guesses: " << p->history.guesses << '\n';
+	}
+
+	writeAsHTML(head);
+
+	while (head != nullptr) {
+		Player* next = head->next;
+		delete head;
+		head = next;
+	}
+
+	return 0;
 }
 
 
